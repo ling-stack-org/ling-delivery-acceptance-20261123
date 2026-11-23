@@ -1,0 +1,34 @@
+name: Synthetic delivery fixture
+
+on:
+  push:
+  merge_group:
+
+permissions:
+  contents: read
+
+jobs:
+  head:
+    name: fixture-head
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Assert the fixture version
+        run: test "$(cat fixture.txt)" = fixture-v1
+  integration:
+    name: fixture-integration
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - name: Check the accepted merge-group tree
+        run: |
+          test "$(cat fixture.txt)" = fixture-v1
+          if [ "$GITHUB_EVENT_NAME" = merge_group ]; then
+            sleep 40
+          fi
